@@ -92,7 +92,7 @@ function appendSetCookie(res, value) {
   res.setHeader("set-cookie", [String(existing), value]);
 }
 
-createServer(async (req, res) => {
+export async function handleRequest(req, res) {
   try {
     const hostHeader = req.headers.host || `localhost:${port}`;
     const protocol = (req.headers["x-forwarded-proto"] || "http").toString().split(",")[0].trim();
@@ -138,6 +138,12 @@ createServer(async (req, res) => {
     }
     res.end("Internal Server Error");
   }
-}).listen(port, host, () => {
-  console.log(`Server running at http://${host}:${port}`);
-});
+}
+
+export default handleRequest;
+
+if (process.env.VERCEL !== "1") {
+  createServer(handleRequest).listen(port, host, () => {
+    console.log(`Server running at http://${host}:${port}`);
+  });
+}
